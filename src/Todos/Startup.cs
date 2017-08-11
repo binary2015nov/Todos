@@ -43,15 +43,19 @@ namespace Todos
             }
 
             // only gets run if SS doesn't handle the request, i.e. can't find the file:
-            app.Run(async context => {
+            app.Use(async (context, next) => {
                 var virtualPath = context.Request.Path.Value;
 
                 if (context.Request.Query.ContainsKey("debugOn"))
                     HostContext.Config.DebugMode = true;
                 if (context.Request.Query.ContainsKey("debugOff"))
                     HostContext.Config.DebugMode = false;
-                if (context.Request.Query.ContainsKey("skip"))
-                    return;
+
+                if (context.Request.Query.ContainsKey("next"))
+                {
+                    await next();
+                    return;                    
+                }
 
                 var file = HostContext.AppHost.VirtualFileSources.GetFile(virtualPath);
 
