@@ -43,65 +43,6 @@ namespace Todos
                 app.UseDeveloperExceptionPage();
             }
 
-            // only gets run if SS doesn't handle the request, i.e. can't find the file:
-            app.Use(async (context, next) => {
-                var virtualPath = context.Request.Path.Value;
-
-                if (context.Request.Query.ContainsKey("debugOn"))
-                    HostContext.Config.DebugMode = true;
-                if (context.Request.Query.ContainsKey("debugOff"))
-                    HostContext.Config.DebugMode = false;
-                
-                if (context.Request.Query.ContainsKey("info"))
-                {
-                    var sb = new StringBuilder();
-                    sb.AppendLine("VirtualFiles RealPath: " + HostContext.VirtualFiles.RootDirectory.RealPath);
-                    sb.AppendLine("VirtualFileSources RealPath: " + HostContext.VirtualFileSources.RootDirectory.RealPath);
-                    sb.AppendLine("FileExists: " + HostContext.VirtualFileSources.FileExists(virtualPath));
-                    sb.AppendLine("DirectoryExists: " + HostContext.VirtualFileSources.DirectoryExists(virtualPath));
-                    sb.AppendLine("WebHostPhysicalPath: " + HttpHandlerFactory.WebHostPhysicalPath);
-                    sb.AppendLine("WebHostRootFileNames: " + HttpHandlerFactory.WebHostRootFileNames.ToJsv());
-
-                    var bytes = sb.ToString().ToUtf8Bytes();
-                    context.Response.Body.Write(bytes, 0, bytes.Length);
-                    context.Response.Body.Close();
-                    return;
-                }
-
-                if (context.Request.Query.ContainsKey("next"))
-                {
-                    await next();
-                    return;                    
-                }
-
-                var file = HostContext.AppHost.VirtualFileSources.GetFile(virtualPath);
-
-                var vfs = (MultiVirtualFiles)HostContext.AppHost.VirtualFileSources;
-                var physicalPath = vfs.CombineVirtualPath(vfs.RootDirectory.RealPath, virtualPath);
-
-                if (file != null)
-                {
-                    await new StaticFileHandler().Middleware(context, next);
-                }
-                else
-                {
-                    var str = $"No file found at '{virtualPath}' using MultiVirtualFiles:\n";
-                    str += $"physicalPath: {physicalPath}\n";
-                    str += $"ResolvePhysicalPath: {HostContext.ResolvePhysicalPath(virtualPath, null)}\n";
-                    str += $"{vfs.GetType().Name} = real: {vfs.RootDirectory.RealPath}, virtual: {vfs.RootDirectory.VirtualPath}\n";
-
-                    foreach (var childVfs in vfs.ChildProviders)
-                    {
-                        file = childVfs.GetFile(virtualPath);
-                        str += $"file using {childVfs.GetType().Name} at {childVfs.RootDirectory.RealPath} = real: {file?.RealPath}, virtual: {file?.VirtualPath}\n";
-                    }
-
-                    var bytes = str.ToUtf8Bytes();
-                    context.Response.Body.Write(bytes, 0, bytes.Length);
-                }
-                context.Response.Body.Close();
-            });
-
             app.UseServiceStack(new AppHost());
         }
     }
