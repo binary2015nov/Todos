@@ -62,10 +62,6 @@ namespace Todos
                     var vfs = (MultiVirtualFiles)HostContext.AppHost.VirtualFileSources;
                     str += $"{vfs.GetType().Name} = real: {vfs.RootDirectory.RealPath}, virtual: {vfs.RootDirectory.VirtualPath}\n";
 
-                    var fs = HostContext.AppHost.GetVirtualFileSources().First(x => x is FileSystemVirtualFiles);
-                    file = fs.GetFile(virtualPath);
-                    str += $"file using {fs.GetType().Name} = real: {file?.RealPath}, virtual: {file?.VirtualPath}\n";
-
                     foreach (var childVfs in vfs.ChildProviders)
                     {
                         file = childVfs.GetFile(virtualPath);
