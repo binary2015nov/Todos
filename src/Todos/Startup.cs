@@ -81,7 +81,7 @@ namespace Todos
 
                 if (file != null)
                 {
-                    await new StaticFileHandler().Middleware(context, () => null);
+                    await new StaticFileHandler().Middleware(context, next);
                 }
                 else
                 {
