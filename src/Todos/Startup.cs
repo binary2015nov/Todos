@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Funq;
 using ServiceStack;
 using ServiceStack.Configuration;
@@ -40,8 +41,6 @@ namespace Todos
             }
 
             app.UseServiceStack(new AppHost());
-
-            app.Use(new RequestInfoHandler());
         }
     }
 
