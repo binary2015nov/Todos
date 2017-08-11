@@ -48,7 +48,7 @@ namespace Todos
                 var file = HostContext.AppHost.VirtualFileSources.GetFile(virtualPath);
                 if (file != null)
                 {
-                    await new StaticFileHandler(file).Middleware(context, () => null);
+                    await new StaticFileHandler().Middleware(context, () => null);
                 }
                 else
                 {
