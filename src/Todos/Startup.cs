@@ -42,19 +42,13 @@ namespace Todos
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseServiceStack(new AppHost());
-
             // only gets run if SS doesn't handle the request, i.e. can't find the file:
             app.Run(async context => {
                 var virtualPath = context.Request.Path.Value;
                 var file = HostContext.AppHost.VirtualFileSources.GetFile(virtualPath);
                 if (file != null)
                 {
-                    context.Response.ContentLength = file.Length;
-                    using (var fs = file.OpenRead())
-                    {
-                        await fs.CopyToAsync(context.Response.Body);
-                    }
+                    await new StaticFileHandler(file).Middleware(context, () => null);
                 }
                 else
                 {
@@ -73,6 +67,8 @@ namespace Todos
                 }
                 context.Response.Body.Close();
             });
+
+            app.UseServiceStack(new AppHost());
         }
     }
 
