@@ -13,6 +13,7 @@ using ServiceStack.Configuration;
 using ServiceStack.Host.Handlers;
 using ServiceStack.Redis;
 using ServiceStack.VirtualPath;
+using System.Text;
 
 namespace Todos
 {
@@ -50,6 +51,22 @@ namespace Todos
                     HostContext.Config.DebugMode = true;
                 if (context.Request.Query.ContainsKey("debugOff"))
                     HostContext.Config.DebugMode = false;
+                
+                if (context.Request.Query.ContainsKey("info"))
+                {
+                    var sb = new StringBuilder();
+                    sb.AppendLine("VirtualFiles RealPath: " + HostContext.VirtualFiles.RootDirectory.RealPath);
+                    sb.AppendLine("VirtualFileSources RealPath: " + HostContext.VirtualFileSources.RootDirectory.RealPath);
+                    sb.AppendLine("FileExists: " + HostContext.VirtualFileSources.FileExists(virtualPath));
+                    sb.AppendLine("DirectoryExists: " + HostContext.VirtualFileSources.DirectoryExists(virtualPath));
+                    sb.AppendLine("WebHostPhysicalPath: " + HttpHandlerFactory.WebHostPhysicalPath);
+                    sb.AppendLine("WebHostRootFileNames: " + HttpHandlerFactory.WebHostRootFileNames.ToJsv());
+
+                    var bytes = sb.ToString().ToUtf8Bytes();
+                    context.Response.Body.Write(bytes, 0, bytes.Length);
+                    context.Response.Body.Close();
+                    return;
+                }
 
                 if (context.Request.Query.ContainsKey("next"))
                 {
