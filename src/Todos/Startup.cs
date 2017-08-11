@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.IO;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -11,6 +12,7 @@ using ServiceStack;
 using ServiceStack.Configuration;
 using ServiceStack.Host.Handlers;
 using ServiceStack.Redis;
+using ServiceStack.VirtualPath;
 
 namespace Todos
 {
@@ -41,6 +43,40 @@ namespace Todos
             }
 
             app.UseServiceStack(new AppHost());
+
+            // only gets run if SS doesn't handle the request, i.e. can't find the file:
+            app.Run(async context => {
+                var virtualPath = context.Request.Path.Value;
+                var file = HostContext.AppHost.VirtualFiles.GetFile(virtualPath);
+                if (file != null)
+                {
+                    context.Response.ContentLength = file.Length;
+                    using (var fs = file.OpenRead())
+                    {
+                        await fs.CopyToAsync(context.Response.Body);
+                    }
+                }
+                else
+                {
+                    var str = $"No file found at '{virtualPath}' using MultiVirtualFiles:\n";
+                    var vfs = (MultiVirtualFiles)HostContext.AppHost.VirtualFileSources;
+                    str += $"{vfs.GetType().Name} = real: {vfs.RootDirectory.RealPath}, virtual: {vfs.RootDirectory.VirtualPath}\n";
+
+                    var fs = HostContext.AppHost.GetVirtualFileSources().First(x => x is FileSystemVirtualFiles);
+                    file = fs.GetFile(virtualPath);
+                    str += $"file using {fs.GetType().Name} = real: {file?.RealPath}, virtual: {file?.VirtualPath}\n";
+
+                    foreach (var childVfs in vfs.ChildProviders)
+                    {
+                        file = childVfs.GetFile(virtualPath);
+                        str += $"file using {childVfs.GetType().Name} at {childVfs.RootDirectory.RealPath} = real: {file?.RealPath}, virtual: {file?.VirtualPath}\n";
+                    }
+
+                    var bytes = str.ToUtf8Bytes();
+                    context.Response.Body.Write(bytes, 0, bytes.Length);
+                }
+                context.Response.Body.Close();
+            });
         }
     }
 
