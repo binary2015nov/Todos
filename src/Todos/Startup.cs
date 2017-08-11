@@ -47,7 +47,7 @@ namespace Todos
             // only gets run if SS doesn't handle the request, i.e. can't find the file:
             app.Run(async context => {
                 var virtualPath = context.Request.Path.Value;
-                var file = HostContext.AppHost.VirtualFiles.GetFile(virtualPath);
+                var file = HostContext.AppHost.VirtualFileSources.GetFile(virtualPath);
                 if (file != null)
                 {
                     context.Response.ContentLength = file.Length;
