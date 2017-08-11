@@ -1,7 +1,7 @@
 FROM microsoft/dotnet:latest
 COPY src/Todos /app
 WORKDIR /app
-RUN ["dotnet", "restore"]
+RUN ["dotnet", "restore", "--configfile", "NuGet.Config"]
 RUN ["dotnet", "build"]
 EXPOSE 5000/tcp
 ENV ASPNETCORE_URLS https://*:5000
