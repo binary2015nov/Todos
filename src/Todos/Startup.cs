@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
-using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Builder;
 using Funq;
 using ServiceStack;
 using ServiceStack.Configuration;
@@ -15,15 +17,14 @@ namespace Todos
     {
         public static void Main(string[] args)
         {
-            var host = new WebHostBuilder()
-                .UseKestrel()
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseIISIntegration()
-                .UseStartup<Startup>()
-                .Build();
-
-            host.Run();
+            BuildWebHost(args).Run();
         }
+
+        public static IWebHost BuildWebHost(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>()
+                .UseUrls("http://localhost:55000/")
+                .Build();
     }
 
     public class Startup
