@@ -46,6 +46,10 @@ namespace Todos
             app.Run(async context => {
                 var virtualPath = context.Request.Path.Value;
                 var file = HostContext.AppHost.VirtualFileSources.GetFile(virtualPath);
+
+                var vfs = (MultiVirtualFiles)HostContext.AppHost.VirtualFileSources;
+                var physicalPath = vfs.CombineVirtualPath(vfs.RootDirectory.RealPath, virtualPath);
+
                 if (file != null)
                 {
                     await new StaticFileHandler().Middleware(context, () => null);
@@ -53,7 +57,8 @@ namespace Todos
                 else
                 {
                     var str = $"No file found at '{virtualPath}' using MultiVirtualFiles:\n";
-                    var vfs = (MultiVirtualFiles)HostContext.AppHost.VirtualFileSources;
+                    str += $"physicalPath: {physicalPath}\n";
+                    str += $"ResolvePhysicalPath: {HostContext.ResolvePhysicalPath(virtualPath, null)}\n";
                     str += $"{vfs.GetType().Name} = real: {vfs.RootDirectory.RealPath}, virtual: {vfs.RootDirectory.VirtualPath}\n";
 
                     foreach (var childVfs in vfs.ChildProviders)
