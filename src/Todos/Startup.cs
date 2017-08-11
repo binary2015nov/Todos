@@ -50,6 +50,8 @@ namespace Todos
                     HostContext.Config.DebugMode = true;
                 if (context.Request.Query.ContainsKey("debugOff"))
                     HostContext.Config.DebugMode = false;
+                if (context.Request.Query.ContainsKey("skip"))
+                    return;
 
                 var file = HostContext.AppHost.VirtualFileSources.GetFile(virtualPath);
 
