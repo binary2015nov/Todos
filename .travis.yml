@@ -1,4 +1,3 @@
-sudo: required
 language: csharp
 solution: src/Todos.sln
 os: linux
