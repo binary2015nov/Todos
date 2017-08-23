@@ -14,6 +14,7 @@
     <PackageReference Include="ServiceStack.Client.Core" Version="1.0.*" />
     <PackageReference Include="ServiceStack.Interfaces.Core" Version="1.0.*" />
     <PackageReference Include="ServiceStack.Text.Core" Version="1.0.*" />
+    <PackageReference Include="ServiceStack.Api.OpenApi.Core" Version="1.0.*" />
   </ItemGroup>
 
 </Project>

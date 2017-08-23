@@ -13,6 +13,7 @@ using ServiceStack.Configuration;
 using ServiceStack.Host.Handlers;
 using ServiceStack.Redis;
 using ServiceStack.VirtualPath;
+using ServiceStack.Api.OpenApi;
 using System.Text;
 
 namespace Todos
@@ -64,6 +65,8 @@ namespace Todos
             //Register Redis Client Manager singleton in ServiceStack's built-in Func IOC
             container.Register<IRedisClientsManager>(c =>
                 new RedisManagerPool(AppSettings.Get("REDIS_HOST", defaultValue:"localhost")));
+
+            Plugins.Add(new OpenApiFeature());
         }
     }
 
