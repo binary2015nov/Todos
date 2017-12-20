@@ -52,7 +52,7 @@ namespace Todos
     public class AppHost : AppHostBase
     {
         // Initializes your AppHost Instance, with the Service Name and assembly containing the Services
-        public AppHost() : base("Backbone.js TODO", typeof(TodoService).GetAssembly()) 
+        public AppHost() : base("Backbone.js TODO", typeof(TodoService).Assembly) 
         { 
             AppSettings = new MultiAppSettings(
                 new EnvironmentVariableSettings(),
