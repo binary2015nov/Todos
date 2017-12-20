@@ -28,12 +28,14 @@ namespace Todos
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
-                .UseUrls("http://0.0.0.0:5000/")
                 .Build();
     }
 
     public class Startup
     {
+        IConfiguration Configuration { get; set; }
+        public Startup(IConfiguration configuration) => Configuration = configuration;
+
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
@@ -44,7 +46,9 @@ namespace Todos
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseServiceStack(new AppHost());
+            app.UseServiceStack(new AppHost {
+                AppSettings = new NetCoreAppSettings(Configuration)
+            });
         }
     }
 
@@ -52,12 +56,7 @@ namespace Todos
     public class AppHost : AppHostBase
     {
         // Initializes your AppHost Instance, with the Service Name and assembly containing the Services
-        public AppHost() : base("Backbone.js TODO", typeof(TodoService).Assembly) 
-        { 
-            AppSettings = new MultiAppSettings(
-                new EnvironmentVariableSettings(),
-                new AppSettings());
-        }
+        public AppHost() : base("Backbone.js TODO", typeof(TodoService).Assembly) {}
 
         // Configure your AppHost with the necessary configuration and dependencies your App needs
         public override void Configure(Container container)
